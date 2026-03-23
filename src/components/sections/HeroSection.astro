@@ -1,0 +1,26 @@
+---
+import { heroNotes, siteConfig } from '../../lib/content/site';
+---
+
+<section class="hero panel reveal" data-reveal>
+	<div class="hero-copy">
+		<span class="section-label">{siteConfig.name}</span>
+		<h1 class="hero-title">{siteConfig.tagline}</h1>
+		<p class="hero-body">
+			Modest wear made for women who notice the gentle details — gathered sleeves,
+			flowing cuts, prints that feel like a small discovery. Browse the collection
+			and order through WhatsApp.
+		</p>
+
+		<div class="hero-actions">
+			<a class="button button-primary" href="/collection">Browse collection</a>
+			<a class="button button-secondary" href="/#order">How to order</a>
+		</div>
+
+		<ul class="hero-notes">
+			{heroNotes.map((note) => (
+				<li>{note}</li>
+			))}
+		</ul>
+	</div>
+</section>

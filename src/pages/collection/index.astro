@@ -1,0 +1,19 @@
+---
+import CollectionSection from '../../components/sections/CollectionSection.astro';
+import Layout from '../../layouts/Layout.astro';
+import { products } from '../../lib/content/catalog';
+---
+
+<Layout
+	title="Collection | byafi"
+	description="Browse the current byafi edit across sets, dresses, layers, and separates."
+	pathname="/collection"
+>
+	<CollectionSection
+		products={products}
+		activeCategory="all"
+		title="The full collection."
+		description="Sets, dresses, layers, and separates — each made with modest silhouettes and whimsical details."
+		label="Collection"
+	/>
+</Layout>

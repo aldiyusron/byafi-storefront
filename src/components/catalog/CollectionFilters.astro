@@ -1,0 +1,24 @@
+---
+import { collectionFilters } from '../../lib/content/catalog';
+
+interface Props {
+	activeCategory?: string;
+}
+
+const { activeCategory = 'all' } = Astro.props;
+---
+
+<div class="filter-row" aria-label="Product filters">
+	{
+		collectionFilters.map((collection) => {
+			const href = collection.id === 'all' ? '/collection' : `/collection/${collection.id}`;
+			const isActive = collection.id === activeCategory;
+
+			return (
+				<a class:list={['filter-chip', { 'is-active': isActive }]} href={href}>
+					{collection.label}
+				</a>
+			);
+		})
+	}
+</div>

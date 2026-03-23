@@ -1,0 +1,24 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CollectionSection from '../components/sections/CollectionSection.astro';
+import EditorialSection from '../components/sections/EditorialSection.astro';
+import HeroSection from '../components/sections/HeroSection.astro';
+import OrderSection from '../components/sections/OrderSection.astro';
+import StorySection from '../components/sections/StorySection.astro';
+import { products } from '../lib/content/catalog';
+import { siteConfig } from '../lib/content/site';
+---
+
+<Layout title={siteConfig.defaultTitle} description={siteConfig.description} pathname="/">
+	<HeroSection />
+	<EditorialSection />
+	<CollectionSection
+		products={products}
+		sectionId="collection"
+		title="The current collection."
+		description="Flowing dresses, layering pieces, and coord sets. Browse and add to your inquiry bag."
+		showBrowseLink={true}
+	/>
+	<StorySection />
+	<OrderSection />
+</Layout>

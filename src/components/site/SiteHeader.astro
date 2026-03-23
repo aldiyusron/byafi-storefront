@@ -1,0 +1,21 @@
+---
+import { primaryNav, siteConfig } from '../../lib/content/site';
+---
+
+<header class="site-header">
+	<a class="brand-lockup" href="/" aria-label="Go to byafi homepage">
+		<span class="brand-mark">b</span>
+		<strong class="brand-name">{siteConfig.name}</strong>
+	</a>
+
+	<nav class="site-nav" aria-label="Primary">
+		{primaryNav.map((item) => (
+			<a href={item.href}>{item.label}</a>
+		))}
+	</nav>
+
+	<button class="bag-toggle" type="button" data-open-bag>
+		Inquiry bag
+		<span id="bag-count">0</span>
+	</button>
+</header>

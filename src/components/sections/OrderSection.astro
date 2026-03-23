@@ -1,0 +1,26 @@
+---
+import { orderSteps } from '../../lib/content/site';
+---
+
+<section class="order-shell reveal" id="order" data-reveal>
+	<div class="order-copy">
+		<span class="section-label">How to order</span>
+		<h2 class="section-title">
+			Pick your pieces, then talk to us on WhatsApp.
+		</h2>
+		<p class="section-body">
+			Save what you like to your inquiry bag. When you are ready, tap the WhatsApp
+			button and we will sort out sizing, fabric, payment, and delivery together.
+		</p>
+	</div>
+
+	<div class="step-list">
+		{orderSteps.map((step) => (
+			<article class="step-card">
+				<span class="step-number">{step.number}</span>
+				<strong>{step.title}</strong>
+				<p>{step.copy}</p>
+			</article>
+		))}
+	</div>
+</section>

@@ -1,0 +1,21 @@
+---
+import { promises } from '../../lib/content/site';
+---
+
+<section class="story-grid reveal" id="story" data-reveal>
+	<div class="story-intro">
+		<span class="section-label">Our story</span>
+		<h2 class="section-title">
+			Born from a love of gentle details and the women who notice them.
+		</h2>
+	</div>
+
+	<div class="story-cards">
+		{promises.map((item) => (
+			<article>
+				<strong>{item.title}</strong>
+				<p>{item.copy}</p>
+			</article>
+		))}
+	</div>
+</section>

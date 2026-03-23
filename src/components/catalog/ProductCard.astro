@@ -1,0 +1,46 @@
+---
+import type { Product } from '../../lib/content/catalog';
+import { getCollectionLabel } from '../../lib/content/catalog';
+import { formatCurrency } from '../../lib/storefront';
+
+interface Props {
+	product: Product;
+}
+
+const { product } = Astro.props;
+---
+
+<article class="product-card">
+	<div
+		class="product-visual"
+		style={`--visual-a:${product.palette[0]}; --visual-b:${product.palette[1]};`}
+	>
+		<span class="product-badge">{product.badge}</span>
+		<span class="product-visual-mark">{product.name.charAt(0)}</span>
+	</div>
+
+	<div class="product-body">
+		<div class="product-head">
+			<div>
+				<span class="product-tag">{getCollectionLabel(product.category)}</span>
+				<h3>{product.name}</h3>
+			</div>
+
+			<span class="product-price">{formatCurrency(product.price)}</span>
+		</div>
+
+		<p class="product-meta">
+			{product.subtitle}. {product.color}. {product.fit}.
+		</p>
+
+		<div class="product-tags">
+			<span class="product-tag">{product.fabric}</span>
+			<span class="product-tag">{product.sizes.join(' / ')}</span>
+		</div>
+
+		<div class="product-actions">
+			<a class="button button-secondary" href={`/product/${product.slug}`}>View details</a>
+			<button class="button button-primary" type="button" data-add-product={product.id}>Add</button>
+		</div>
+	</div>
+</article>

@@ -1,0 +1,26 @@
+---
+import { editorials } from '../../lib/content/site';
+---
+
+<section class="editorial-shell reveal" id="lookbook" data-reveal>
+	<div class="section-heading">
+		<span class="section-label">Lookbook</span>
+		<h2 class="section-title">
+			Three moods that run through everything we make.
+		</h2>
+	</div>
+
+	<div class="editorial-cards">
+		{
+			editorials.map((item) => (
+				<article class="editorial-card" style={`background:${item.gradient};`}>
+					<span class="editorial-card-index">{item.index}</span>
+					<div>
+						<h3>{item.title}</h3>
+						<p>{item.copy}</p>
+					</div>
+				</article>
+			))
+		}
+	</div>
+</section>

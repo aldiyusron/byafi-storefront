@@ -1,0 +1,33 @@
+---
+import CollectionSection from '../../components/sections/CollectionSection.astro';
+import Layout from '../../layouts/Layout.astro';
+import { browseCollections, getProducts, type CollectionCategory } from '../../lib/content/catalog';
+
+export function getStaticPaths() {
+	return browseCollections.map((collection) => ({
+		params: { category: collection.id },
+		props: { collection }
+	}));
+}
+
+interface Props {
+	collection: CollectionCategory;
+}
+
+const { collection } = Astro.props;
+const pathname = `/collection/${collection.id}`;
+---
+
+<Layout
+	title={`${collection.label} | byafi Collection`}
+	description={collection.description}
+	pathname={pathname}
+>
+	<CollectionSection
+		products={getProducts(collection.id)}
+		activeCategory={collection.id}
+		title={`${collection.label}.`}
+		description={collection.description}
+		label="Collection"
+	/>
+</Layout>

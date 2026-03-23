@@ -1,0 +1,60 @@
+---
+import '../styles/global.css';
+import InquiryBag from '../components/site/InquiryBag.astro';
+import SiteFooter from '../components/site/SiteFooter.astro';
+import SiteHeader from '../components/site/SiteHeader.astro';
+import { siteConfig } from '../lib/content/site';
+
+interface Props {
+	title?: string;
+	description?: string;
+	pathname?: string;
+}
+
+const { title = siteConfig.defaultTitle, description = siteConfig.description, pathname = '/' } =
+	Astro.props;
+const siteUrl = Astro.site ?? new URL('https://www.byafi.com');
+const canonicalUrl = new URL(pathname, siteUrl).toString();
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content={description} />
+		<meta name="theme-color" content="#f9f3ed" />
+		<link rel="canonical" href={canonicalUrl} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Sora:wght@300;400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonicalUrl} />
+		<title>{title}</title>
+		<slot name="head" />
+	</head>
+
+	<body>
+		<div class="page-shell">
+			<SiteHeader />
+			<main>
+				<slot />
+			</main>
+			<SiteFooter />
+		</div>
+
+		<InquiryBag />
+
+		<script>
+			import '../scripts/storefront.ts';
+		</script>
+	</body>
+</html>

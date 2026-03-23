@@ -1,0 +1,17 @@
+---
+import { siteConfig } from '../../lib/content/site';
+---
+
+<footer class="site-footer">
+	<div>
+		<span class="section-label">{siteConfig.name}</span>
+		<p class="footer-tagline">{siteConfig.tagline}</p>
+		<p>{siteConfig.footerCopy}</p>
+	</div>
+
+	<div class="footer-links">
+		<a href={siteConfig.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>
+		<a href="/collection">Collection</a>
+		<button type="button" class="footer-bag-link" data-open-bag>Open inquiry bag</button>
+	</div>
+</footer>

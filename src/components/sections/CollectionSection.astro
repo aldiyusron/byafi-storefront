@@ -1,0 +1,40 @@
+---
+import type { Product } from '../../lib/content/catalog';
+import CollectionFilters from '../catalog/CollectionFilters.astro';
+import ProductGrid from '../catalog/ProductGrid.astro';
+
+interface Props {
+	products: Product[];
+	activeCategory?: string;
+	title: string;
+	description: string;
+	label?: string;
+	sectionId?: string;
+	showBrowseLink?: boolean;
+}
+
+const {
+	products,
+	activeCategory = 'all',
+	title,
+	description,
+	label = 'Catalogue',
+	sectionId,
+	showBrowseLink = false
+} = Astro.props;
+---
+
+<section class="collection-shell panel reveal" id={sectionId} data-reveal>
+	<div class="section-heading">
+		<span class="section-label">{label}</span>
+		<h2 class="section-title">{title}</h2>
+		<p class="section-body">{description}</p>
+	</div>
+
+	<div class="section-actions">
+		<CollectionFilters activeCategory={activeCategory} />
+		{showBrowseLink && <a class="button button-secondary" href="/collection">Open full collection</a>}
+	</div>
+
+	<ProductGrid products={products} />
+</section>

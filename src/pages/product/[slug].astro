@@ -1,0 +1,126 @@
+---
+import ProductGrid from '../../components/catalog/ProductGrid.astro';
+import Layout from '../../layouts/Layout.astro';
+import { getCollectionLabel, products, type Product } from '../../lib/content/catalog';
+import { siteConfig } from '../../lib/content/site';
+import { formatCurrency } from '../../lib/storefront';
+
+export function getStaticPaths() {
+	return products.map((product) => ({
+		params: { slug: product.slug },
+		props: { product }
+	}));
+}
+
+interface Props {
+	product: Product;
+}
+
+const { product } = Astro.props;
+const pathname = `/product/${product.slug}`;
+const canonicalUrl = new URL(pathname, Astro.site ?? new URL('https://www.byafi.com')).toString();
+const relatedProducts = products
+	.filter((entry) => entry.id !== product.id && entry.category === product.category)
+	.slice(0, 3);
+
+const structuredData = JSON.stringify({
+	'@context': 'https://schema.org',
+	'@type': 'Product',
+	name: product.name,
+	description: product.description,
+	category: getCollectionLabel(product.category),
+	brand: {
+		'@type': 'Brand',
+		name: siteConfig.name
+	},
+	offers: {
+		'@type': 'Offer',
+		priceCurrency: siteConfig.currencyCode,
+		price: product.price,
+		url: canonicalUrl,
+		availability: 'https://schema.org/InStock'
+	}
+});
+---
+
+<Layout
+	title={`${product.name} | byafi`}
+	description={`${product.description} ${product.color}. ${product.fabric}.`}
+	pathname={pathname}
+>
+	<script is:inline slot="head" type="application/ld+json" set:html={structuredData}></script>
+
+	<section class="detail-panel panel reveal" data-reveal>
+		<p class="breadcrumb">
+			<a href="/collection">Collection</a> /{' '}
+			<a href={`/collection/${product.category}`}>{getCollectionLabel(product.category)}</a> /{' '}
+			<span>{product.name}</span>
+		</p>
+
+		<div
+			class="detail-layout"
+			style={`--visual-a:${product.palette[0]}; --visual-b:${product.palette[1]};`}
+		>
+			<div class="detail-visual">
+				<span>{product.name.charAt(0)}</span>
+			</div>
+
+			<div class="detail-copy">
+				<div>
+					<span class="product-tag">{getCollectionLabel(product.category)}</span>
+					<h1 class="detail-title">{product.name}</h1>
+					<p class="detail-price">{formatCurrency(product.price)}</p>
+				</div>
+
+				<p>{product.description}</p>
+
+				<div class="detail-tags">
+					<span class="detail-tag">{product.badge}</span>
+					<span class="detail-tag">{product.color}</span>
+					<span class="detail-tag">{product.fit}</span>
+				</div>
+
+				<div class="detail-grid">
+					<section class="detail-section">
+						<strong>Fabric</strong>
+						<p>{product.fabric}</p>
+					</section>
+					<section class="detail-section">
+						<strong>Sizes</strong>
+						<p>{product.sizes.join(', ')}</p>
+					</section>
+					<section class="detail-section">
+						<strong>Silhouette</strong>
+						<p>{product.subtitle}</p>
+					</section>
+					<section class="detail-section">
+						<strong>Styling note</strong>
+						<p>{product.note}</p>
+					</section>
+				</div>
+
+				<div class="detail-actions">
+					<button class="button button-primary" type="button" data-add-product={product.id}>
+						Add to inquiry bag
+					</button>
+					<button class="button button-secondary" type="button" data-open-bag>
+						Open inquiry bag
+					</button>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	{
+		relatedProducts.length > 0 && (
+			<section class="collection-shell panel reveal" data-reveal>
+				<div class="section-heading">
+					<span class="section-label">Related pieces</span>
+					<h2 class="section-title">More from {getCollectionLabel(product.category)}.</h2>
+				</div>
+
+				<ProductGrid products={relatedProducts} />
+			</section>
+		)
+	}
+</Layout>

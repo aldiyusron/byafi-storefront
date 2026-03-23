@@ -1,0 +1,47 @@
+---
+import { siteConfig } from '../../lib/content/site';
+import { isValidWhatsappNumber } from '../../lib/storefront';
+
+const bagNote = isValidWhatsappNumber(siteConfig.whatsappNumber)
+	? 'This sends a pre-filled order inquiry so the conversation can continue in WhatsApp.'
+	: 'Update the WhatsApp number in the content layer before using the direct order button.';
+---
+
+<div class="bag-backdrop" id="bag-backdrop" hidden></div>
+
+<aside class="bag-drawer" id="bag-drawer" aria-labelledby="bag-title" aria-hidden="true">
+	<div class="bag-header">
+		<div>
+			<span class="section-label">Inquiry bag</span>
+			<h2 id="bag-title">Direct order summary</h2>
+		</div>
+
+		<button class="icon-button" type="button" data-close-bag aria-label="Close inquiry bag">
+			×
+		</button>
+	</div>
+
+	<div class="bag-body">
+		<div id="bag-items" class="bag-items">
+			<article class="bag-empty">
+				<strong>Your inquiry bag is empty.</strong>
+				<p class="bag-empty-copy">
+					Add a few products from the catalogue and the site will prepare the order summary for WhatsApp.
+				</p>
+			</article>
+		</div>
+	</div>
+
+	<div class="bag-footer">
+		<div class="bag-total">
+			<span>Estimated total</span>
+			<strong id="bag-total">Rp0</strong>
+		</div>
+
+		<p class="bag-note">{bagNote}</p>
+
+		<button class="button button-primary button-block" id="checkout-button" type="button">
+			Send order via WhatsApp
+		</button>
+	</div>
+</aside>
