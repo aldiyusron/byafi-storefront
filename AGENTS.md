@@ -32,4 +32,4 @@
 - PRs should include a brief scope summary, linked issue or task when available, screenshots for visual changes, and the checks you ran locally.
 
 ## Configuration Notes
-- `src/styles/global.css` imports Tailwind and `astro.config.mjs` enables the Tailwind Vite plugin. If you change styling setup, keep those files and `package.json` or `package-lock.json` in sync.
+- `src/styles/global.css` is a hand-written stylesheet using CSS custom properties. No Tailwind. If you change styling setup, keep those files and `package.json` or `package-lock.json` in sync.

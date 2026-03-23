@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-byafi storefront — the public-facing Astro site for a direct-order clothing brand. This is Phase 1 of a multi-phase build (see `../docs/project-checkpoint.md` for full roadmap). The site is static, has no backend, and hands off orders via WhatsApp. A Next.js admin app and shared backend are planned for later phases.
+byafi storefront — the public-facing Astro site for a direct-order clothing brand (modest womenswear, IDR pricing, Indonesia-based). This is Phase 1 of a multi-phase build (see `../docs/project-checkpoint.md` for full roadmap). The site is static, has no backend, and hands off orders via WhatsApp. A Next.js admin app and shared backend are planned for later phases.
+
+Site URL: `https://www.byafi.com`. Integrations: `@astrojs/sitemap`.
 
 ## Commands
 
@@ -28,7 +30,7 @@ All content lives in typed TypeScript modules under `src/lib/content/`:
 - **`site.ts`** — brand copy, navigation, config constants (currency, WhatsApp number, social links). Exports `siteConfig` and content arrays consumed by section components.
 - **`catalog.ts`** — product and collection definitions (`Product[]`, `CollectionCategory[]`), plus lookup helpers (`getProductById`, `getProductBySlug`, `getProducts`). This is the single source of truth for the catalogue.
 
-Adding/editing products or site copy means editing these files directly.
+Adding/editing products or site copy means editing these files directly. Prices are integers in IDR (e.g., `849000` renders as "Rp849.000" via `formatCurrency` in `src/lib/storefront.ts`).
 
 ### Routing
 
@@ -58,7 +60,7 @@ Pure utility functions (currency formatting, bag normalization, WhatsApp message
 
 ### Styling
 
-Single global stylesheet at `src/styles/global.css`. Uses CSS custom properties (`:root` variables) for the design system — colors, radii, shadows, max-width. No Tailwind despite AGENTS.md mention; the actual CSS is hand-written. Typography uses Google Fonts (Cormorant Garamond + Manrope).
+Single global stylesheet at `src/styles/global.css`. Uses CSS custom properties (`:root` variables) for the design system — colors, radii, shadows, max-width. Hand-written CSS, no Tailwind (ignore the Tailwind reference in `AGENTS.md` — it is outdated). Typography uses Google Fonts (Cormorant Garamond + Manrope).
 
 Responsive breakpoints: 1080px, 820px, 620px. Respects `prefers-reduced-motion`.
 
