@@ -23,6 +23,8 @@ const relatedProducts = products
 	.filter((entry) => entry.id !== product.id && entry.category === product.category)
 	.slice(0, 3);
 
+const hasStock = product.variants.some((v) => v.stock > 0);
+
 const structuredData = JSON.stringify({
 	'@context': 'https://schema.org',
 	'@type': 'Product',
@@ -38,7 +40,9 @@ const structuredData = JSON.stringify({
 		priceCurrency: siteConfig.currencyCode,
 		price: product.price,
 		url: canonicalUrl,
-		availability: 'https://schema.org/InStock'
+		availability: hasStock
+			? 'https://schema.org/InStock'
+			: 'https://schema.org/OutOfStock'
 	}
 });
 ---
@@ -80,14 +84,35 @@ const structuredData = JSON.stringify({
 					<span class="detail-tag">{product.fit}</span>
 				</div>
 
+				<div class="size-selector" role="radiogroup" aria-label="Select size">
+					<span class="size-selector-label">Size</span>
+					<div class="size-chips">
+						{product.variants.map((variant) => {
+							const isOutOfStock = variant.stock === 0;
+							return (
+								<button
+									type="button"
+									class:list={['size-chip', { 'is-disabled': isOutOfStock }]}
+									data-select-size={isOutOfStock ? undefined : variant.sku}
+									disabled={isOutOfStock}
+									aria-label={isOutOfStock ? `${variant.size} — sold out` : `Size ${variant.size}`}
+								>
+									{variant.size}
+								</button>
+							);
+						})}
+					</div>
+					<span class="size-hint" id="size-hint">Select a size</span>
+				</div>
+
 				<div class="detail-grid">
 					<section class="detail-section">
 						<strong>Fabric</strong>
 						<p>{product.fabric}</p>
 					</section>
 					<section class="detail-section">
-						<strong>Sizes</strong>
-						<p>{product.sizes.join(', ')}</p>
+						<strong>Size guide</strong>
+						<p>Fits true to size. See product details for measurements.</p>
 					</section>
 					<section class="detail-section">
 						<strong>Silhouette</strong>
@@ -100,11 +125,17 @@ const structuredData = JSON.stringify({
 				</div>
 
 				<div class="detail-actions">
-					<button class="button button-primary" type="button" data-add-product={product.id}>
-						Add to inquiry bag
+					<button
+						class="button button-primary"
+						type="button"
+						data-add-product={product.id}
+						data-needs-size
+						disabled
+					>
+						Add to bag
 					</button>
 					<button class="button button-secondary" type="button" data-open-bag>
-						Open inquiry bag
+						View bag
 					</button>
 				</div>
 			</div>

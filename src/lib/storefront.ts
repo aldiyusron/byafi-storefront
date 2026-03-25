@@ -1,12 +1,13 @@
-import { getProductById } from './content/catalog';
+import { getProductById, getVariantBySku } from './content/catalog';
 import { siteConfig } from './content/site';
 
 export interface BagItem {
 	productId: string;
+	sku: string;
 	quantity: number;
 }
 
-export const storageKey = 'byafi-inquiry-bag-v1';
+export const storageKey = 'byafi-bag-v2';
 
 export function formatCurrency(value: number) {
 	return new Intl.NumberFormat(siteConfig.currencyLocale, {
@@ -38,14 +39,16 @@ export function normalizeBag(value: unknown): BagItem[] {
 						? entry.id
 						: null;
 
+			const sku = 'sku' in entry && typeof entry.sku === 'string' ? entry.sku : null;
+
 			const quantity =
 				'quantity' in entry && Number.isInteger(entry.quantity) ? Number(entry.quantity) : null;
 
-			if (!productId || !quantity || quantity < 1) {
+			if (!productId || !sku || !quantity || quantity < 1) {
 				return null;
 			}
 
-			return { productId, quantity };
+			return { productId, sku, quantity };
 		})
 		.filter((entry): entry is BagItem => Boolean(entry));
 }
@@ -53,6 +56,10 @@ export function normalizeBag(value: unknown): BagItem[] {
 export function getBagTotals(items: BagItem[]) {
 	const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 	const total = items.reduce((sum, item) => {
+		const match = getVariantBySku(item.sku);
+		if (match) {
+			return sum + match.variant.price * item.quantity;
+		}
 		const product = getProductById(item.productId);
 		return product ? sum + product.price * item.quantity : sum;
 	}, 0);
@@ -61,23 +68,26 @@ export function getBagTotals(items: BagItem[]) {
 }
 
 export function buildWhatsappOrderMessage(items: BagItem[]) {
-	const lines = ['Hi byafi, I would like to place an order inquiry:', ''];
+	const lines = ['Hi byafi, I would like to place an order:', ''];
 
 	items.forEach((item, index) => {
-		const product = getProductById(item.productId);
+		const match = getVariantBySku(item.sku);
 
-		if (!product) {
+		if (!match) {
 			return;
 		}
 
+		const { product, variant } = match;
+		const lineTotal = variant.price * item.quantity;
+
 		lines.push(
-			`${index + 1}. ${product.name} x${item.quantity} (${formatCurrency(product.price * item.quantity)})`
+			`${index + 1}. ${product.name} (${variant.size}) x${item.quantity} (${formatCurrency(lineTotal)})`
 		);
 	});
 
 	lines.push('');
 	lines.push(`Estimated total: ${formatCurrency(getBagTotals(items).total)}`);
-	lines.push('Could you please confirm availability, size guidance, and payment details?');
+	lines.push('Could you please confirm availability and payment details?');
 
 	return lines.join('\n');
 }
