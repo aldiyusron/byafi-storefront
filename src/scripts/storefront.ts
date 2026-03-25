@@ -1,4 +1,4 @@
-import { getCollectionLabel, getProductById } from '../lib/content/catalog';
+import { getCollectionLabel, getVariantBySku } from '../lib/content/catalog';
 import { siteConfig } from '../lib/content/site';
 import {
 	buildWhatsappOrderMessage,
@@ -45,6 +45,7 @@ function initStorefront() {
 
 	renderBag();
 	bindEvents();
+	initSizeSelector();
 	revealSections();
 
 	function bindEvents() {
@@ -56,33 +57,40 @@ function initStorefront() {
 			}
 
 			const addButton = target.closest<HTMLElement>('[data-add-product]');
+			const sizeChip = target.closest<HTMLElement>('[data-select-size]');
 			const qtyButton = target.closest<HTMLElement>('[data-qty-change]');
 			const removeButton = target.closest<HTMLElement>('[data-remove-product]');
 			const openBagButton = target.closest<HTMLElement>('[data-open-bag]');
 			const closeBagButton = target.closest<HTMLElement>('[data-close-bag]');
 
+			if (sizeChip) {
+				handleSizeSelect(sizeChip);
+			}
+
 			if (addButton) {
 				const productId = addButton.getAttribute('data-add-product');
+				const sku = addButton.getAttribute('data-selected-sku');
 
-				if (productId) {
-					addToBag(productId);
+				if (productId && sku) {
+					addToBag(productId, sku);
+					openBag();
 				}
 			}
 
 			if (qtyButton) {
-				const productId = qtyButton.getAttribute('data-qty-change');
+				const sku = qtyButton.getAttribute('data-qty-change');
 				const delta = Number(qtyButton.getAttribute('data-qty-delta'));
 
-				if (productId && Number.isInteger(delta)) {
-					updateQuantity(productId, delta);
+				if (sku && Number.isInteger(delta)) {
+					updateQuantity(sku, delta);
 				}
 			}
 
 			if (removeButton) {
-				const productId = removeButton.getAttribute('data-remove-product');
+				const sku = removeButton.getAttribute('data-remove-product');
 
-				if (productId) {
-					removeFromBag(productId);
+				if (sku) {
+					removeFromBag(sku);
 				}
 			}
 
@@ -119,16 +127,57 @@ function initStorefront() {
 		});
 	}
 
+	function handleSizeSelect(chip: HTMLElement) {
+		const sku = chip.getAttribute('data-select-size');
+		if (!sku) return;
+
+		if (chip.classList.contains('is-disabled')) return;
+
+		const selector = chip.closest('.size-selector');
+		if (!selector) return;
+
+		selector.querySelectorAll('[data-select-size]').forEach((el) => {
+			el.classList.remove('is-active');
+		});
+		chip.classList.add('is-active');
+
+		const addButton = document.querySelector<HTMLButtonElement>('[data-add-product][data-needs-size]');
+		if (addButton) {
+			addButton.setAttribute('data-selected-sku', sku);
+			addButton.disabled = false;
+		}
+
+		const sizeHint = document.getElementById('size-hint');
+		if (sizeHint) {
+			const match = getVariantBySku(sku);
+			if (match && match.variant.stock > 0 && match.variant.stock <= 3) {
+				sizeHint.textContent = `Only ${match.variant.stock} left`;
+				sizeHint.classList.add('is-low-stock');
+			} else {
+				sizeHint.textContent = '';
+				sizeHint.classList.remove('is-low-stock');
+			}
+		}
+	}
+
+	function initSizeSelector() {
+		const addButton = document.querySelector<HTMLButtonElement>('[data-add-product][data-needs-size]');
+		if (addButton) {
+			addButton.disabled = true;
+		}
+	}
+
 	function renderBag() {
 		const entries = state.bag
 			.map((item) => {
-				const product = getProductById(item.productId);
+				const match = getVariantBySku(item.sku);
 
-				if (!product) {
+				if (!match) {
 					return null;
 				}
 
-				const lineTotal = product.price * item.quantity;
+				const { product, variant } = match;
+				const lineTotal = variant.price * item.quantity;
 
 				return `
 					<article class="bag-item">
@@ -136,19 +185,19 @@ function initStorefront() {
 							<div>
 								<span class="bag-pill">${getCollectionLabel(product.category)}</span>
 								<strong>${product.name}</strong>
-								<p class="product-meta">${product.color} · ${product.fit}</p>
+								<p class="product-meta">${variant.color} · ${product.fit} · Size ${variant.size}</p>
 							</div>
 							<span>${formatCurrency(lineTotal)}</span>
 						</div>
 
 						<div class="bag-item-footer">
 							<div class="bag-qty">
-								<button type="button" aria-label="Decrease quantity" data-qty-change="${product.id}" data-qty-delta="-1">-</button>
+								<button type="button" aria-label="Decrease quantity" data-qty-change="${item.sku}" data-qty-delta="-1">-</button>
 								<span>${item.quantity}</span>
-								<button type="button" aria-label="Increase quantity" data-qty-change="${product.id}" data-qty-delta="1">+</button>
+								<button type="button" aria-label="Increase quantity" data-qty-change="${item.sku}" data-qty-delta="1">+</button>
 							</div>
 
-							<button type="button" class="footer-bag-link" data-remove-product="${product.id}">
+							<button type="button" class="footer-bag-link" data-remove-product="${item.sku}">
 								Remove
 							</button>
 						</div>
@@ -166,9 +215,9 @@ function initStorefront() {
 		if (entries.length === 0) {
 			ui.bagItems.innerHTML = `
 				<article class="bag-empty">
-					<strong>Your inquiry bag is empty.</strong>
+					<strong>Your bag is empty.</strong>
 					<p class="bag-empty-copy">
-						Add a few products from the catalogue and the site will prepare the order summary for WhatsApp.
+						Browse the collection and add pieces you love.
 					</p>
 				</article>
 			`;
@@ -178,23 +227,23 @@ function initStorefront() {
 		ui.bagItems.innerHTML = entries.join('');
 	}
 
-	function addToBag(productId: string) {
-		const existing = state.bag.find((item) => item.productId === productId);
+	function addToBag(productId: string, sku: string) {
+		const existing = state.bag.find((item) => item.sku === sku);
 
 		if (existing) {
 			existing.quantity += 1;
 		} else {
-			state.bag.push({ productId, quantity: 1 });
+			state.bag.push({ productId, sku, quantity: 1 });
 		}
 
 		persistBag();
 		renderBag();
 	}
 
-	function updateQuantity(productId: string, delta: number) {
+	function updateQuantity(sku: string, delta: number) {
 		state.bag = state.bag
 			.map((item) =>
-				item.productId === productId ? { ...item, quantity: item.quantity + delta } : item
+				item.sku === sku ? { ...item, quantity: item.quantity + delta } : item
 			)
 			.filter((item) => item.quantity > 0);
 
@@ -202,8 +251,8 @@ function initStorefront() {
 		renderBag();
 	}
 
-	function removeFromBag(productId: string) {
-		state.bag = state.bag.filter((item) => item.productId !== productId);
+	function removeFromBag(sku: string) {
+		state.bag = state.bag.filter((item) => item.sku !== sku);
 		persistBag();
 		renderBag();
 	}

@@ -4,6 +4,15 @@ export interface CollectionCategory {
 	description: string;
 }
 
+export interface ProductVariant {
+	sku: string;
+	size: string;
+	color: string;
+	colorHex: string;
+	price: number;
+	stock: number;
+}
+
 export interface Product {
 	id: string;
 	slug: string;
@@ -19,6 +28,24 @@ export interface Product {
 	sizes: string[];
 	note: string;
 	palette: [string, string];
+	variants: ProductVariant[];
+}
+
+function makeVariants(
+	productId: string,
+	color: string,
+	colorHex: string,
+	price: number,
+	stockBySize: Record<string, number>
+): ProductVariant[] {
+	return Object.entries(stockBySize).map(([size, stock]) => ({
+		sku: `${productId}-${size.toLowerCase()}`,
+		size,
+		color,
+		colorHex,
+		price,
+		stock
+	}));
 }
 
 export const collectionFilters: CollectionCategory[] = [
@@ -67,7 +94,13 @@ export const products: Product[] = [
 		color: 'Dusty blush',
 		sizes: ['S', 'M', 'L', 'XL'],
 		note: 'Beautiful as an everyday uniform and easy to dress up for gatherings or dinner.',
-		palette: ['#deb8b8', '#a07070']
+		palette: ['#deb8b8', '#a07070'],
+		variants: makeVariants('naira-coord-set', 'Dusty blush', '#deb8b8', 849000, {
+			S: 8,
+			M: 5,
+			L: 3,
+			XL: 6
+		})
 	},
 	{
 		id: 'selah-column-dress',
@@ -84,7 +117,12 @@ export const products: Product[] = [
 		color: 'Soft ivory',
 		sizes: ['S', 'M', 'L'],
 		note: 'An event-ready shape with dreamy movement instead of overt embellishment.',
-		palette: ['#ede5da', '#b8a898']
+		palette: ['#ede5da', '#b8a898'],
+		variants: makeVariants('selah-column-dress', 'Soft ivory', '#ede5da', 689000, {
+			S: 4,
+			M: 2,
+			L: 0
+		})
 	},
 	{
 		id: 'tala-wrap-outer',
@@ -101,7 +139,12 @@ export const products: Product[] = [
 		color: 'Sage mist',
 		sizes: ['S', 'M', 'L'],
 		note: 'A transitional layer for those who want gentle structure without stiffness.',
-		palette: ['#96a088', '#5c6852']
+		palette: ['#96a088', '#5c6852'],
+		variants: makeVariants('tala-wrap-outer', 'Sage mist', '#96a088', 735000, {
+			S: 6,
+			M: 7,
+			L: 5
+		})
 	},
 	{
 		id: 'alya-everyday-tunic',
@@ -118,7 +161,13 @@ export const products: Product[] = [
 		color: 'Warm cream',
 		sizes: ['S', 'M', 'L', 'XL'],
 		note: 'A lovely first piece for anyone discovering the brand for the first time.',
-		palette: ['#e8dccf', '#b8a090']
+		palette: ['#e8dccf', '#b8a090'],
+		variants: makeVariants('alya-everyday-tunic', 'Warm cream', '#e8dccf', 429000, {
+			S: 10,
+			M: 12,
+			L: 8,
+			XL: 4
+		})
 	},
 	{
 		id: 'mira-soft-blazer',
@@ -135,7 +184,12 @@ export const products: Product[] = [
 		color: 'Charcoal',
 		sizes: ['S', 'M', 'L'],
 		note: 'A signature piece that anchors any outfit with quiet confidence.',
-		palette: ['#4a4044', '#1c1719']
+		palette: ['#4a4044', '#1c1719'],
+		variants: makeVariants('mira-soft-blazer', 'Charcoal', '#4a4044', 779000, {
+			S: 3,
+			M: 5,
+			L: 7
+		})
 	},
 	{
 		id: 'safa-shirt-dress',
@@ -152,7 +206,13 @@ export const products: Product[] = [
 		color: 'Dusty rose',
 		sizes: ['S', 'M', 'L', 'XL'],
 		note: 'An all-day piece that feels as lovely at a cafe as it does at a gathering.',
-		palette: ['#d9b8bb', '#9e7880']
+		palette: ['#d9b8bb', '#9e7880'],
+		variants: makeVariants('safa-shirt-dress', 'Dusty rose', '#d9b8bb', 625000, {
+			S: 6,
+			M: 9,
+			L: 4,
+			XL: 0
+		})
 	},
 	{
 		id: 'rumi-pleat-skirt',
@@ -169,7 +229,12 @@ export const products: Product[] = [
 		color: 'Soft lavender',
 		sizes: ['S', 'M', 'L'],
 		note: 'Pairs naturally with both tailoring and softer tunic-style tops.',
-		palette: ['#c8b8cc', '#7a6880']
+		palette: ['#c8b8cc', '#7a6880'],
+		variants: makeVariants('rumi-pleat-skirt', 'Soft lavender', '#c8b8cc', 465000, {
+			S: 5,
+			M: 8,
+			L: 1
+		})
 	},
 	{
 		id: 'lina-lounge-set',
@@ -186,7 +251,13 @@ export const products: Product[] = [
 		color: 'Cream with black dot',
 		sizes: ['S', 'M', 'L', 'XL'],
 		note: 'A charming set that brings a playful side to the collection.',
-		palette: ['#2a2428', '#d8d0c8']
+		palette: ['#2a2428', '#d8d0c8'],
+		variants: makeVariants('lina-lounge-set', 'Cream with black dot', '#d8d0c8', 598000, {
+			S: 7,
+			M: 11,
+			L: 6,
+			XL: 3
+		})
 	}
 ];
 
@@ -212,4 +283,14 @@ export function getProductById(productId: string) {
 
 export function getProductBySlug(slug: string) {
 	return products.find((product) => product.slug === slug);
+}
+
+export function getVariantBySku(sku: string) {
+	for (const product of products) {
+		const variant = product.variants.find((v) => v.sku === sku);
+		if (variant) {
+			return { product, variant };
+		}
+	}
+	return undefined;
 }

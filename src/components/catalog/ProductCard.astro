@@ -8,6 +8,7 @@ interface Props {
 }
 
 const { product } = Astro.props;
+const hasStock = product.variants.some((v) => v.stock > 0);
 ---
 
 <article class="product-card">
@@ -39,8 +40,12 @@ const { product } = Astro.props;
 		</div>
 
 		<div class="product-actions">
-			<a class="button button-secondary" href={`/product/${product.slug}`}>View details</a>
-			<button class="button button-primary" type="button" data-add-product={product.id}>Add</button>
+			<a
+				class:list={['button', hasStock ? 'button-primary' : 'button-secondary', 'button-block']}
+				href={`/product/${product.slug}`}
+			>
+				{hasStock ? 'View details' : 'Sold out — View details'}
+			</a>
 		</div>
 	</div>
 </article>

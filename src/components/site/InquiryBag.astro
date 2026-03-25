@@ -2,9 +2,7 @@
 import { siteConfig } from '../../lib/content/site';
 import { isValidWhatsappNumber } from '../../lib/storefront';
 
-const bagNote = isValidWhatsappNumber(siteConfig.whatsappNumber)
-	? 'This sends a pre-filled order inquiry so the conversation can continue in WhatsApp.'
-	: 'Update the WhatsApp number in the content layer before using the direct order button.';
+const hasWhatsapp = isValidWhatsappNumber(siteConfig.whatsappNumber);
 ---
 
 <div class="bag-backdrop" id="bag-backdrop" hidden></div>
@@ -12,21 +10,21 @@ const bagNote = isValidWhatsappNumber(siteConfig.whatsappNumber)
 <aside class="bag-drawer" id="bag-drawer" aria-labelledby="bag-title" aria-hidden="true">
 	<div class="bag-header">
 		<div>
-			<span class="section-label">Inquiry bag</span>
-			<h2 id="bag-title">Direct order summary</h2>
+			<span class="section-label">Shopping bag</span>
+			<h2 id="bag-title">Your bag</h2>
 		</div>
 
-		<button class="icon-button" type="button" data-close-bag aria-label="Close inquiry bag">
-			×
+		<button class="icon-button" type="button" data-close-bag aria-label="Close bag">
+			&times;
 		</button>
 	</div>
 
 	<div class="bag-body">
 		<div id="bag-items" class="bag-items">
 			<article class="bag-empty">
-				<strong>Your inquiry bag is empty.</strong>
+				<strong>Your bag is empty.</strong>
 				<p class="bag-empty-copy">
-					Add a few products from the catalogue and the site will prepare the order summary for WhatsApp.
+					Browse the collection and add pieces you love.
 				</p>
 			</article>
 		</div>
@@ -38,10 +36,16 @@ const bagNote = isValidWhatsappNumber(siteConfig.whatsappNumber)
 			<strong id="bag-total">Rp0</strong>
 		</div>
 
-		<p class="bag-note">{bagNote}</p>
+		<p class="bag-note">You'll review your order and choose a payment method.</p>
 
 		<button class="button button-primary button-block" id="checkout-button" type="button">
-			Send order via WhatsApp
+			Checkout
 		</button>
+
+		{hasWhatsapp && (
+			<p class="bag-whatsapp-link">
+				Have questions? <a href={`https://wa.me/${siteConfig.whatsappNumber.replace(/\D/g, '')}`} target="_blank" rel="noopener">Chat on WhatsApp</a>
+			</p>
+		)}
 	</div>
 </aside>
